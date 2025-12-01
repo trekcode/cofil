@@ -4,7 +4,23 @@ const SUPABASE_URL = 'https://sbexusqjvmfbumnedfey.supabase.co'; // <-- replace
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZXh1c3Fqdm1mYnVtbmVkZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ1ODAzNjYsImV4cCI6MjA4MDE1NjM2Nn0.KHjvE8TII5lqAT_jorvCZl9HsMWQ3h8KYTwapQMH9rQ'; // <-- replace
 const BUCKET = 'companyfiles'; // Ensure you created this bucket in Supabase
 
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Initialize Supabase client robustly (handle CDN exports differences)
+const supabase = (typeof window.supabase === 'object' && typeof window.supabase.createClient === 'function')
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : (typeof window.createClient === 'function'
+      ? window.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+      : null);
+
+if(!supabase){
+  console.error('Supabase client not available. Make sure the Supabase script is loaded before `app.js`.');
+  // Show a visible message in the page
+  document.addEventListener('DOMContentLoaded', ()=>{
+    const authMessageEl = document.getElementById('authMessage');
+    if(authMessageEl) authMessageEl.textContent = 'Configuration error: Supabase client not available. Check console.';
+  });
+} else {
+  console.log('Supabase client initialized:', supabase);
+}
 
 // UI elements
 const authView = document.getElementById('authView');
@@ -53,9 +69,15 @@ signInBtn.addEventListener('click', async ()=>{
   const email = emailInput.value.trim();
   const password = passwordInput.value;
   if(!email || !password){ authMessage.textContent = 'Enter email and password.'; return; }
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if(error){ authMessage.textContent = error.message; return; }
-  await onAuthChange(data.user);
+  try{
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    console.log('signInWithPassword response:', { data, error });
+    if(error){ authMessage.textContent = error.message; return; }
+    await onAuthChange(data.user);
+  } catch(err){
+    console.error('signIn error', err);
+    authMessage.textContent = 'Sign in failed (see console).';
+  }
 });
 
 signUpBtn.addEventListener('click', async ()=>{
@@ -63,9 +85,15 @@ signUpBtn.addEventListener('click', async ()=>{
   const email = emailInput.value.trim();
   const password = passwordInput.value;
   if(!email || !password){ authMessage.textContent = 'Enter email and password.'; return; }
-  const { data, error } = await supabase.auth.signUp({ email, password });
-  if(error){ authMessage.textContent = error.message; return; }
-  authMessage.textContent = 'Account created — check your email to verify (if enabled).';
+  try{
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    console.log('signUp response:', { data, error });
+    if(error){ authMessage.textContent = error.message; return; }
+    authMessage.textContent = 'Account created — check your email to verify (if enabled).';
+  } catch(err){
+    console.error('signUp error', err);
+    authMessage.textContent = 'Sign up failed (see console).';
+  }
 });
 
 signOutBtn.addEventListener('click', async ()=>{
