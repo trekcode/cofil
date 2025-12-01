@@ -1,0 +1,35 @@
+/* Basic reset */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial;color:#0f172a;background:#f8fafc}
+.app{display:flex;min-height:100vh}
+.sidebar{width:250px;background:#0b1220;color:#fff;padding:20px;display:flex;flex-direction:column;justify-content:space-between}
+.brand{font-weight:700;font-size:20px;margin-bottom:20px}
+.nav{display:flex;flex-direction:column;gap:10px}
+.nav-btn{background:transparent;border:none;color:#9aa6b2;text-align:left;padding:10px;border-radius:8px;cursor:pointer}
+.nav-btn.active{background:#0f172a;color:#fff}
+.sidebar-footer{margin-top:20px}
+.user-email{font-size:13px;color:#9aa6b2;margin-bottom:10px}
+.main{flex:1;padding:28px}
+.view{display:block}
+.hidden{display:none}
+.card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 4px 20px rgba(2,6,23,0.06)}
+.auth-card{max-width:420px;margin:80px auto;padding:28px;text-align:center}
+.auth-card input{width:100%;padding:10px;margin-top:12px;border-radius:8px;border:1px solid #e6eef6}
+.auth-actions{display:flex;gap:10px;justify-content:center;margin-top:14px}
+.btn{background:#0b84ff;color:#fff;padding:10px 14px;border-radius:8px;border:none;cursor:pointer}
+.btn.ghost{background:transparent;color:#0b84ff;border:1px solid #cfe6ff}
+.btn.small{padding:6px 8px;font-size:13px}
+.btn.outline{background:transparent;border:1px solid rgba(255,255,255,0.08)}
+.grid{display:grid;grid-template-columns:320px 1fr;gap:18px;margin-top:14px}
+.upload-card input[type=file]{width:100%;margin-top:8px}
+.files-list{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.file-item{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:8px;border:1px solid #eef4fb}
+.file-meta{font-size:13px;color:#0f172a}
+.file-actions{display:flex;gap:6px}
+.files-card.wide{min-height:400px}
+.message{margin-top:8px;color:#334155}
+.small{font-size:13px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+
+/* Responsive */
+@media (max-width:900px){.sidebar{display:none}.grid{grid-template-columns:1fr}}

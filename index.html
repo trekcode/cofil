@@ -1,0 +1,108 @@
+<!--
+Project: Supabase File Portal (Advanced UI)
+Files included below in this single document:
+- index.html
+- style.css
+- app.js
+- README (instructions / Supabase & Netlify setup)
+
+INSTRUCTIONS: Copy each file into your project folder exactly as named. Replace SUPABASE_URL and SUPABASE_ANON_KEY placeholders in app.js with your Supabase credentials.
+-->
+
+
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Company Files — Portal</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Supabase JS (CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+</head>
+<body>
+  <div id="app" class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">Company Files</div>
+      <nav class="nav">
+        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
+        <button class="nav-btn" data-view="files">Files</button>
+        <button class="nav-btn" data-view="profile">Profile</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div id="userEmail" class="user-email"></div>
+        <button id="signOutBtn" class="btn small outline">Sign out</button>
+      </div>
+    </aside>
+
+    <!-- Main area -->
+    <main class="main">
+
+      <!-- LOGIN SCREEN (shown when not authenticated) -->
+      <section id="authView" class="view auth-view">
+        <div class="card auth-card">
+          <h2>Sign in to Company Files</h2>
+          <input id="emailInput" type="email" placeholder="Email" />
+          <input id="passwordInput" type="password" placeholder="Password" />
+          <div class="auth-actions">
+            <button id="signInBtn" class="btn">Sign in</button>
+            <button id="signUpBtn" class="btn ghost">Create account</button>
+          </div>
+          <div id="authMessage" class="message"></div>
+        </div>
+      </section>
+
+      <!-- DASHBOARD: Upload + Recent Files -->
+      <section id="dashboardView" class="view dashboard-view hidden">
+        <div class="topbar">
+          <h1>Dashboard</h1>
+        </div>
+        <div class="grid">
+          <div class="card upload-card">
+            <h3>Upload files</h3>
+            <input id="fileInput" type="file" multiple />
+            <label for="folderInput">Folder (optional)</label>
+            <input id="folderInput" placeholder="documents/reports" />
+            <div class="upload-actions">
+              <button id="uploadBtn" class="btn">Upload</button>
+            </div>
+            <div id="uploadStatus" class="message small"></div>
+          </div>
+
+          <div class="card files-card">
+            <h3>Files</h3>
+            <div id="filesList" class="files-list">Loading...</div>
+            <div class="files-actions">
+              <button id="refreshBtn" class="btn small">Refresh</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FILES VIEW: larger file management -->
+      <section id="filesView" class="view files-view hidden">
+        <div class="topbar">
+          <h1>All Files</h1>
+        </div>
+        <div class="card files-card wide">
+          <div id="filesTable">Loading...</div>
+        </div>
+      </section>
+
+      <!-- PROFILE VIEW -->
+      <section id="profileView" class="view profile-view hidden">
+        <div class="card profile-card">
+          <h3>Profile</h3>
+          <p id="profileEmail">Email: —</p>
+          <p id="profileId">User ID: —</p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
