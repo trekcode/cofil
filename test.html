@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+</head>
+<body>
+    <h1>Test Connection to Supabase</h1>
+    <button onclick="testSupabase()">Test Supabase Connection</button>
+    <div id="result"></div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://sbexusqjvmfbumnedfey.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNiZXh1c3Fqdm1mYnVtbmVkZmV5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzUwNjU1NTgsImV4cCI6MjA1MDY0MTU1OH0.8oRc6mX4pO8wA4Q4v4Q4v4Q4v4Q4v4Q4v4Q4v4Q4v4Q4';
+        
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        async function testSupabase() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                // Test 1: Check connection
+                resultDiv.innerHTML = '<p>Testing Supabase connection...</p>';
+                
+                // Test 2: Try to list storage buckets
+                const { data: buckets, error: bucketError } = await supabase.storage.listBuckets();
+                
+                if (bucketError) {
+                    resultDiv.innerHTML += `<p style="color: red;">Bucket Error: ${bucketError.message}</p>`;
+                } else {
+                    resultDiv.innerHTML += `<p style="color: green;">Buckets found: ${buckets.length}</p>`;
+                }
+                
+                // Test 3: Try to query files table
+                const { data: files, error: filesError } = await supabase
+                    .from('files')
+                    .select('count')
+                    .limit(1);
+                
+                if (filesError) {
+                    resultDiv.innerHTML += `<p style="color: red;">Database Error: ${filesError.message}</p>`;
+                } else {
+                    resultDiv.innerHTML += `<p style="color: green;">Database connected!</p>`;
+                }
+                
+            } catch (error) {
+                resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

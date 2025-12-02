@@ -1,4 +1,35 @@
 // script.js
+
+// Temporary bypass for testing
+const tempBypassAuth = true;
+
+if (tempBypassAuth) {
+    // Create a mock user session
+    currentUser = {
+        email: 'test@company.com'
+    };
+    document.getElementById('userEmail').textContent = currentUser.email;
+    
+    // Load files without auth check
+    setupEventListeners();
+    loadFiles();
+    
+    // Override logout
+    window.logout = function() {
+        if (confirm('Log out?')) {
+            window.location.href = 'login.html';
+        }
+    };
+    
+    // Skip the rest of the auth initialization
+    // Don't run the original DOMContentLoaded code
+    document.addEventListener('DOMContentLoaded', function() {
+        // Already handled above
+    });
+} else {
+    // Original code here...
+    // [Keep all your original code after this else block]
+}
 let currentUser = null;
 let allFiles = [];
 let currentFilter = 'all';

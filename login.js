@@ -1,4 +1,4 @@
-// login.js
+// login.js - Simplified for testing
 document.addEventListener('DOMContentLoaded', function() {
     // Check if already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -25,31 +25,50 @@ document.addEventListener('DOMContentLoaded', function() {
         errorMessage.style.display = 'none';
         
         try {
-            // For demo purposes - hardcoded credentials
-            if (email === 'demo@company.com' && password === 'demopassword123') {
-                // Create a dummy session for demo
-                localStorage.setItem('demo_user', JSON.stringify({
-                    email: 'demo@company.com',
-                    name: 'Demo User'
-                }));
-                window.location.href = 'index.html';
-                return;
+            // For testing, create a simple test account
+            if (!email || !password) {
+                throw new Error('Please enter email and password');
             }
             
-            // Real Supabase authentication
+            // Try to sign in with Supabase
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
                 password: password
             });
             
-            if (error) throw error;
+            if (error) {
+                // If user doesn't exist, try to sign up
+                if (error.message.includes('Invalid login credentials')) {
+                    const { data: signupData, error: signupError } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            emailRedirectTo: window.location.origin + '/login.html'
+                        }
+                    });
+                    
+                    if (signupError) throw signupError;
+                    
+                    // Auto-login after signup
+                    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+                        email: email,
+                        password: password
+                    });
+                    
+                    if (loginError) throw loginError;
+                    
+                    data = loginData;
+                } else {
+                    throw error;
+                }
+            }
             
             // Login successful
             window.location.href = 'index.html';
             
         } catch (error) {
-            console.error('Login error:', error);
-            errorMessage.textContent = error.message || 'Invalid email or password';
+            console.error('Auth error:', error);
+            errorMessage.textContent = error.message || 'Authentication failed';
             errorMessage.style.display = 'block';
             
             // Reset button
@@ -57,67 +76,15 @@ document.addEventListener('DOMContentLoaded', function() {
             loginButton.disabled = false;
         }
     });
-});
-
-// Show signup modal
-function showSignup() {
-    document.getElementById('signupModal').style.display = 'block';
-}
-
-// Close signup modal
-function closeSignupModal() {
-    document.getElementById('signupModal').style.display = 'none';
-    document.getElementById('signupForm').reset();
-    document.getElementById('signupErrorMessage').style.display = 'none';
-}
-
-// Handle signup form submission
-document.addEventListener('DOMContentLoaded', function() {
-    const signupForm = document.getElementById('signupForm');
-    if (signupForm) {
-        signupForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const errorMessage = document.getElementById('signupErrorMessage');
-            
-            // Validate passwords match
-            if (password !== confirmPassword) {
-                errorMessage.textContent = 'Passwords do not match';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            // Validate password length
-            if (password.length < 6) {
-                errorMessage.textContent = 'Password must be at least 6 characters';
-                errorMessage.style.display = 'block';
-                return;
-            }
-            
-            try {
-                // Sign up with Supabase
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                    options: {
-                        emailRedirectTo: 'https://692e8e85c2aea20cd16a0d3e--primecompanyflies.netlify.app/'
-                    }
-                });
-                
-                if (error) throw error;
-                
-                // Show success message
-                alert('Account created successfully! Please check your email to confirm your account.');
-                closeSignupModal();
-                
-            } catch (error) {
-                console.error('Signup error:', error);
-                errorMessage.textContent = error.message || 'Error creating account';
-                errorMessage.style.display = 'block';
-            }
-        });
-    }
+    
+    // Add test credentials helper
+    const testCredentials = document.createElement('div');
+    testCredentials.innerHTML = `
+        <div style="margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 5px;">
+            <p style="margin: 0; font-size: 14px; color: #333;">
+                <strong>Test Account:</strong> test@company.com / testpassword123
+            </p>
+        </div>
+    `;
+    loginForm.parentNode.insertBefore(testCredentials, loginForm.nextSibling);
 });
