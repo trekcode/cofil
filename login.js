@@ -103,7 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     email: email,
                     password: password,
                     options: {
-                        emailRedirectTo: window.location.origin
+                        emailRedirectTo: 'https://692e8e85c2aea20cd16a0d3e--primecompanyflies.netlify.app/'
                     }
                 });
                 
