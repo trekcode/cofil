@@ -1,95 +1,118 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Company Files — Portal</title>
-  <link rel="stylesheet" href="style.css">
-  <!-- Supabase JS (CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company File Storage</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-  <div id="app" class="app">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-      <div class="brand">Company Files</div>
-      <nav class="nav">
-        <button class="nav-btn active" data-view="dashboard">Dashboard</button>
-        <button class="nav-btn" data-view="files">Files</button>
-        <button class="nav-btn" data-view="profile">Profile</button>
-      </nav>
-      <div class="sidebar-footer">
-        <div id="userEmail" class="user-email"></div>
-        <button id="signOutBtn" class="btn small outline">Sign out</button>
-      </div>
-    </aside>
-
-    <!-- Main area -->
-    <main class="main">
-
-      <!-- LOGIN SCREEN (shown when not authenticated) -->
-      <section id="authView" class="view auth-view">
-        <div class="card auth-card">
-          <h2>Sign in to Company Files</h2>
-          <input id="emailInput" type="email" placeholder="Email" />
-          <input id="passwordInput" type="password" placeholder="Password" />
-          <div class="auth-actions">
-            <button id="signInBtn" class="btn">Sign in</button>
-            <button id="signUpBtn" class="btn ghost">Create account</button>
-          </div>
-          <div id="authMessage" class="message"></div>
-        </div>
-      </section>
-
-      <!-- DASHBOARD: Upload + Recent Files -->
-      <section id="dashboardView" class="view dashboard-view hidden">
-        <div class="topbar">
-          <h1>Dashboard</h1>
-        </div>
-        <div class="grid">
-          <div class="card upload-card">
-            <h3>Upload files</h3>
-            <input id="fileInput" type="file" multiple />
-            <label for="folderInput">Folder (optional)</label>
-            <input id="folderInput" placeholder="documents/reports" />
-            <div class="upload-actions">
-              <button id="uploadBtn" class="btn">Upload</button>
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1><i class="fas fa-cloud-upload-alt"></i> Company File Storage</h1>
+            <div class="user-info" id="userInfo">
+                <span id="userEmail"></span>
+                <button onclick="logout()" class="logout-btn">Logout</button>
             </div>
-            <div id="uploadStatus" class="message small"></div>
-          </div>
+        </header>
 
-          <div class="card files-card">
-            <h3>Files</h3>
-            <div id="filesList" class="files-list">Loading...</div>
-            <div class="files-actions">
-              <button id="refreshBtn" class="btn small">Refresh</button>
+        <!-- Main Content -->
+        <main>
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="upload-section">
+                    <h3><i class="fas fa-upload"></i> Upload Files</h3>
+                    <div class="upload-area" id="uploadArea">
+                        <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                        <p>Drag & drop files here or click to browse</p>
+                        <input type="file" id="fileInput" multiple style="display: none;">
+                        <button class="btn browse-btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i> Browse Files
+                        </button>
+                    </div>
+                    <div class="upload-options">
+                        <div class="form-group">
+                            <label for="description">Description (optional):</label>
+                            <textarea id="description" placeholder="Add a description for the file"></textarea>
+                        </div>
+                        <button class="btn upload-btn" onclick="uploadFiles()">
+                            <i class="fas fa-upload"></i> Upload Files
+                        </button>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <h3><i class="fas fa-chart-bar"></i> Storage Stats</h3>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Files:</span>
+                            <span class="stat-value" id="totalFiles">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Storage Used:</span>
+                            <span class="stat-value" id="storageUsed">0 MB</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-        </div>
-      </section>
 
-      <!-- FILES VIEW: larger file management -->
-      <section id="filesView" class="view files-view hidden">
-        <div class="topbar">
-          <h1>All Files</h1>
-        </div>
-        <div class="card files-card wide">
-          <div id="filesTable">Loading...</div>
-        </div>
-      </section>
+            <!-- File List Section -->
+            <div class="file-list-section">
+                <div class="section-header">
+                    <h2><i class="fas fa-file"></i> All Files</h2>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search files...">
+                    </div>
+                </div>
 
-      <!-- PROFILE VIEW -->
-      <section id="profileView" class="view profile-view hidden">
-        <div class="card profile-card">
-          <h3>Profile</h3>
-          <p id="profileEmail">Email: —</p>
-          <p id="profileId">User ID: —</p>
+                <div class="filters">
+                    <button class="filter-btn active" onclick="filterFiles('all')">All Files</button>
+                    <button class="filter-btn" onclick="filterFiles('pdf')">PDFs</button>
+                    <button class="filter-btn" onclick="filterFiles('image')">Images</button>
+                    <button class="filter-btn" onclick="filterFiles('document')">Documents</button>
+                    <button class="filter-btn" onclick="filterFiles('other')">Other</button>
+                </div>
+
+                <div class="file-list-container">
+                    <table class="file-table">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Description</th>
+                                <th>Size</th>
+                                <th>Uploaded By</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fileTableBody">
+                            <tr id="loadingRow">
+                                <td colspan="6" class="loading-cell">
+                                    <div class="loading-spinner"></div>
+                                    <p>Loading files...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for File Preview -->
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closePreviewModal()">&times;</span>
+            <div id="previewContent"></div>
         </div>
-      </section>
+    </div>
 
-    </main>
-  </div>
-
-  <script src="app.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
